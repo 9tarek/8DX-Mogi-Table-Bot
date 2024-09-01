@@ -1,7 +1,10 @@
 # Mogi Table Bot
 ## Tutorial
 ## First Time Setup:
-Download Mogi Table Bot.exe or Mogi Table Bot.exe NON EU depending on your Location. If you're planning to use the OBS Overlay, download the 2 Fonts aswell, and install them. 
+Download Mogi Table Bot.exe or Mogi Table Bot.exe NON EU depending on your Location. If you're planning to use the OBS Overlay, download the 2 Fonts aswell, and install them.
+Fonts needed for OBS Overlay:
+https://github.com/lisophorm/dreamteam/raw/master/src/assets/fonts/Digital/DS-DIGIB.TTF
+https://archive.org/download/Fontworks/Fonts/FOT-NewRodin%20Pro%20B.otf
 
 Go to the Settings Tab and check the "Using OBS Virtual Camera" if you're using it for your own Gameplay, leave it disabled if you're watching a Stream. (Leaving it disabled will take a Screenshot from your PC, rather than your Capture Card).
 
