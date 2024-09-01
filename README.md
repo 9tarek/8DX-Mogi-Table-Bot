@@ -73,6 +73,10 @@ If the room crashes, press the Room Crash button, and it will add the Points to 
 
 Press Clear after a mogi with DC Points/Room Crash finished.
 
+##Disclaimer:
+
+It does not work if somebody has a tag at the end of the name.
+
 
 
 
