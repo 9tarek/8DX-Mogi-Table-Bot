@@ -77,6 +77,11 @@ Press Clear after a mogi with DC Points/Room Crash finished.
 
 It does not work if somebody has the tag at the end of the name.
 
+If the Table / Scores don't update, check the Screenshots tab.
+
+![image](https://github.com/user-attachments/assets/c2b88cb4-3824-46d3-a246-267b5061774e)
+
+If this image shows up, you forgot to start the Virtual Camera
 
 
 
