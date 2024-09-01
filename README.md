@@ -75,7 +75,7 @@ Press Clear after a mogi with DC Points/Room Crash finished.
 
 ## Disclaimer:
 
-It does not work if somebody has a tag at the end of the name.
+It does not work if somebody has the tag at the end of the name.
 
 
 
