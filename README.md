@@ -8,9 +8,10 @@ Go to the Settings Tab and check the "Using OBS Virtual Camera" if you're using 
 Check the OBS Overlay Checkbox if you want to use the Overlay.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/17d70ae0-ad66-4b10-9764-ce1cc9e5395e" alt="Bild 1" width="500"/>
-  <img src="https://github.com/user-attachments/assets/7e0b081e-36fd-4aba-9c2c-6a6d74da70cb" alt="Bild 2" width="504"/>
+  <img src="https://github.com/user-attachments/assets/c8b2650e-b389-4917-883d-5c77162b6751" alt="Bild 1" width="400"/>
+  <img src="https://github.com/user-attachments/assets/9897ee2b-1a23-4cdd-86de-cc59656104d0" alt="Bild 2" width="397"/>
 </p> 
+
 
 If you activated OBS Overlay this window should pop up.
 
