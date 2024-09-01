@@ -1,7 +1,9 @@
 # Mogi Table Bot
 ## Tutorial
 ## First Time Setup:
-Download Mogi Table Bot.exe or Mogi Table Bot.exe (non EU) depending on your Location. If you're planning to use the OBS Overlay, download the 2 fonts aswell, and install them.
+Download Mogi Table Bot.exe or Mogi Table Bot.exe (non EU) from https://github.com/9tarek/8DX-Mogi-Table-Bot/releases.
+
+If you're planning to use the OBS Overlay, download the 2 fonts aswell, and install them.
 
 Fonts needed for OBS Overlay:
 
