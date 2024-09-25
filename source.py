@@ -1,7 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select, WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 import customtkinter
 import keyboard
 from PIL import Image, ImageGrab, ImageTk
@@ -17,6 +16,7 @@ import json
 import pywinstyles
 import cv2
 from pygrabber.dshow_graph import FilterGraph
+from selenium.common.exceptions import NoSuchElementException
 
 def extract_theme():
 
@@ -214,7 +214,9 @@ def load_settings():
         else:
             save_settings()
     except Exception:
-        save_settings()
+        reset_settings()
+    except ValueError:
+        reset_settings()
 
 def save_settings():
     config_path = get_config_path()
@@ -227,6 +229,27 @@ def save_settings():
     }
     with open(config_path, "w") as file:
         json.dump(settings, file)
+
+def reset_settings():
+    global hotkey, twitchhotkey, autocopy, using_obs_virtual_cam, obs_overlay_active
+    config_path = get_config_path()
+    settings = {
+        "hotkey": "Down",
+        "twitchhotkey": None,
+        "autocopy": "Disabled",
+        "using_obs_virtual_cam": False,
+        "obs_overlay_active": False
+    }
+    with open(config_path, "w") as file:
+        json.dump(settings, file)
+    
+    hotkey = "Down"
+    twitchhotkey = None
+    autocopy = "Disabled"
+    using_obs_virtual_cam = False
+    obs_overlay_active = False
+    
+
 
 load_settings()
 
@@ -271,7 +294,7 @@ smallerfont = customtkinter.CTkFont(family="DS-Digital", size=30, weight="bold")
 
 infotext = customtkinter.CTkTextbox(tabview.tab("Info"), width=620, height=250)
 infotext.grid(row=0, column=0, padx=(20, 0), pady=(20, 0), sticky="nsew")
-infotext.insert("0.0", "Press Hotkey once you're on the sorted race results screen or the points finished adding up\nOnly enter the first Letter of Tag for DC Points (in this format: A10 B10 C10 D10 E10 F10)\nUse the normal Hotkey if youre using OBS method or watching Fullscreen (recommended)\nUse the Twitch Hotkey if youre watching twitch with chat opened (highly experimental)\nTwitch Mode might not work if youre not on Chrome and dont have something in your bookmarks \n(might not even work then)\n\nMade by tarek\nusing https://gb.hlorenzi.com/table\n\nDiscord: 9tarek\nin case of questions\nv2")
+infotext.insert("0.0", "Press Hotkey once you're on the sorted race results screen or the points finished adding up\nOnly enter the first Letter of Tag for DC Points (in this format: A10 B10 C10 D10 E10 F10)\nUse the normal Hotkey if youre using OBS method or watching Fullscreen (recommended)\nUse the Twitch Hotkey if youre watching twitch with chat opened (highly experimental)\nTwitch Mode might not work if youre not on Chrome and dont have something in your bookmarks \n(might not even work then)\n\nMade by tarek\nusing https://gb.hlorenzi.com/table\n\nDiscord: 9tarek\nin case of questions\nv2.0.2")
 infotext.configure(state="disabled")
 
 
@@ -401,18 +424,23 @@ def change_hotkey():
     
 def set_hotkey(event):
     global hotkey
-    if event.keysym == "Escape":
-        if hotkey:
-            keyboard.remove_hotkey(hotkey)
-        hotkey = None
-        status_label.configure(text=f"Current: None")
-    else:
-        if hotkey:
-            keyboard.remove_hotkey(hotkey)
-        hotkey = event.keysym
+    try:
+        if event.keysym == "Escape":
+            if hotkey:
+                keyboard.remove_hotkey(hotkey)
+            hotkey = None
+            status_label.configure(text=f"Current: None")
+        else:
+            if hotkey:
+                keyboard.remove_hotkey(hotkey)
+            hotkey = event.keysym
+            keyboard.add_hotkey(hotkey, lambda: upload_screenshot(driver))
+            status_label.configure(text=f"Current: {hotkey}")
+        root.unbind("<Key>")
+    except ValueError:
+        status_label.configure(text=f"Invalid Hotkey")
+        hotkey = "Down"
         keyboard.add_hotkey(hotkey, lambda: upload_screenshot(driver))
-        status_label.configure(text=f"Current: {hotkey}")
-    root.unbind("<Key>")
 
 def change_twitch_hotkey():
     twitch_status_label.configure(text="Listening...")
@@ -420,18 +448,21 @@ def change_twitch_hotkey():
     
 def set_twitch_hotkey(event):
     global twitchhotkey
-    if event.keysym == "Escape":
-        if twitchhotkey:
-            keyboard.remove_hotkey(twitchhotkey)
-        twitchhotkey = None
-        twitch_status_label.configure(text=f"Current: None")
-    else:
-        if twitchhotkey:
-            keyboard.remove_hotkey(hotkey)
-        twitchhotkey = event.keysym
-        keyboard.add_hotkey(twitchhotkey, lambda: upload_screenshot_twitch(driver))
-        twitch_status_label.configure(text=f"Current: {twitchhotkey}")
-    root.unbind("<Key>")
+    try:
+        if event.keysym == "Escape":
+            if twitchhotkey:
+                keyboard.remove_hotkey(twitchhotkey)
+            twitchhotkey = None
+            twitch_status_label.configure(text=f"Current: None")
+        else:
+            if twitchhotkey:
+                keyboard.remove_hotkey(hotkey)
+            twitchhotkey = event.keysym
+            keyboard.add_hotkey(twitchhotkey, lambda: upload_screenshot_twitch(driver))
+            twitch_status_label.configure(text=f"Current: {twitchhotkey}")
+        root.unbind("<Key>")
+    except ValueError:
+        twitch_status_label.configure(text=f"Invalid Hotkey")
 
     
 hotkeys_label = customtkinter.CTkLabel(tabview.tab("Settings"), text="Hotkeys")
@@ -509,7 +540,7 @@ def copy_scores_to_clipboard(driver):
             score = sum(int(x) for x in score_str.split("+"))
 
             initial = name[0].upper()
-            if initial == "8" and not using_obs_virtual_cam:
+            if initial == "8":
                 initial = "B"
             if initial in scoresfr:
                 scoresfr[initial] += score
@@ -527,6 +558,7 @@ def copy_scores_to_clipboard(driver):
 
 def check_for_dc_points(driver):
     global dc_score
+    global dc_points
     scores = driver.find_element(By.TAG_NAME, "textarea")
     scoresvalue = scores.get_attribute("value")
     total = 0
@@ -537,6 +569,9 @@ def check_for_dc_points(driver):
             score_str = match.group(2)
             score = sum(int(x) for x in score_str.split("+"))
             total += score
+    if total <= 990 and total >= 910:
+        dc_points = ""
+        dc_points_field.delete(0, "end")
     if total % 82 == 0:
         dc_score = 0
         missing_points_label.configure(text="")
@@ -629,8 +664,11 @@ def upload_screenshot(driver):
                 break
         scores = driver.find_element(By.TAG_NAME, "textarea")
         scoresvalue = scores.get_attribute("value")
-        if "¹■" in scoresvalue:
+        if "¹■" in scoresvalue or "¹ı■" in scoresvalue or "¹/" in scoresvalue:
+            print(scoresvalue)
             scoresvalue = scoresvalue.replace("¹■", "VA")
+            scoresvalue = scoresvalue.replace("¹ı■", "VA")
+            scoresvalue = scoresvalue.replace("¹/", "V")
             scores.clear()
             scores.send_keys(scoresvalue)
         if obs_overlay_not_active_scores in scoresvalue.replace("\n", ""):
@@ -876,7 +914,7 @@ def update_obs_overlay(driver):
             score = sum(int(x) for x in score_str.split("+"))
 
             initial = name[0].upper()
-            if initial == "8" and not using_obs_virtual_cam:
+            if initial == "8":
                 initial = "B"
             if initial in scoresfr:
                 scoresfr[initial] += score
@@ -1064,17 +1102,26 @@ if __name__ == "__main__":
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--headless")
+    options.add_argument("--window-position=-2400,-2400")
     driver = webdriver.Chrome(options=options)
     driver.get("https://gb.hlorenzi.com/table")
-    if hotkey:
+    try:
+        if hotkey:
+            keyboard.add_hotkey(hotkey, lambda: upload_screenshot(driver))
+        if twitchhotkey:
+            keyboard.add_hotkey(twitchhotkey, lambda: upload_screenshot_twitch(driver))
+    except ValueError:
+        reset_settings()
         keyboard.add_hotkey(hotkey, lambda: upload_screenshot(driver))
-    if twitchhotkey:
-        keyboard.add_hotkey(twitchhotkey, lambda: upload_screenshot_twitch(driver))
 
-    do_not_consent_button = WebDriverWait(driver, 20).until(
-        EC.element_to_be_clickable((By.XPATH, "//button[@class='fc-button fc-cta-do-not-consent fc-secondary-button']"))
-    )
-    do_not_consent_button.click()
+    WebDriverWait(driver, 20).until(lambda d: d.execute_script("return document.readyState") == "complete")
+    print("loaded")
+
+    try:
+        do_not_consent_button = driver.find_element(By.XPATH, "//button[@class='fc-button fc-cta-do-not-consent fc-secondary-button']")
+        do_not_consent_button.click()
+    except NoSuchElementException:
+        print("Do not consent button not found. Proceeding without it.")
 
     select_element = driver.find_element(By.ID, "selectTableGame")
     select_element.click()
