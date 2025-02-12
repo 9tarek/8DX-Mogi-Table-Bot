@@ -87,6 +87,7 @@ If the Table / Scores don't update, check the Screenshots tab.
 
 If this image shows up, you forgot to start the Virtual Camera
 
+The Twitch Hotkey is experimental, I don't recommend using it.
 
 
 
