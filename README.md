@@ -1,5 +1,6 @@
 # Mogi Table Bot
 ## Tutorial
+I strongly advise to follow and read the whole instructions, to prevent confusion. (It won't take long)
 ## First Time Setup:
 Download MogiTableBotv2.1.exe from https://github.com/9tarek/8DX-Mogi-Table-Bot/releases.
 
